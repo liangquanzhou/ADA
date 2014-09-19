@@ -103,7 +103,7 @@ sunflower=chickwts[chickwts[,2]=="sunflower",1]
 library(bootstrap)
 median.soy=bootstrap(soybean,1000,median)
 median.sun=bootstrap(sunflower,1000,median)
-quantile(abs(median.soy$thetastar-median.sun$thetastar),c(0.025,0.975))
+quantile(median.soy$thetastar-median.sun$thetastar,c(0.025,0.975))
 ```
 
 b). Same method as (a).
