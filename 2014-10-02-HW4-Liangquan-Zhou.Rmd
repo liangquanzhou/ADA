@@ -118,13 +118,13 @@ f = function(x) 2 * asin(sqrt(x))
 
 power_arcsin1 = function(sample_size, alpha, p1, p2){
   
-  delta = f(p1) - f(p2)
+  delta = abs(f(p1) - f(p2))
   
   z_alpha_2 = qnorm(1 - alpha/2)
   
   z_beta = sqrt(sample_size) * delta - z_alpha_2
   
-  power = 1 - pnorm(z_beta)
+  power = pnorm(z_beta)
   
   return(power)
 }
@@ -149,7 +149,7 @@ power_normal2 = function(p1, p2, alpha, beta){
   
   q2 = 1- p2
   
-  delta = p1 - p2
+  delta = abs(p1 - p2)
   
   p_mean = (p1 + p2) / 2
   
@@ -178,8 +178,6 @@ plot(delta, sample_size, type="b", main = "Delta v.s. Sample Size use Normal App
 f = function(x) 2 * asin(sqrt(x))
 
 delta_arcsin = function(sample_size, alpha, beta){
-  
-  delta = f(p1) - f(p2)
   
   z_alpha_2 = qnorm(1 - alpha/2)
   
