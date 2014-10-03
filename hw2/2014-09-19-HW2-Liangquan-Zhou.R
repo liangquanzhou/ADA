@@ -1,6 +1,6 @@
 #problem1
 # parametric procedure
-ibrary(MASS)
+library(MASS)
 data(chickwts)
 meatmeal=chickwts[chickwts[,2]=="meatmeal",1]
 casein=chickwts[chickwts[,2]=="casein",1]
