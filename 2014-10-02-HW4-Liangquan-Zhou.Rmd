@@ -1,7 +1,7 @@
 ---
 title: "ADA HW4"
-author: "Liangquan Zhou lz2377"
-date: "Thursday, October 02, 2014"
+author: "Liangquan Zhou (lz2377)"
+date: "10/03/2014"
 output: pdf_document
 tags: hw4
 ---
@@ -12,6 +12,15 @@ From example 2 we know that $X_1, X_2, ... X_n \thicksim N(\mu_1, \sigma^2)$, $Y
 And the test is : $H_0: |\mu_1 - \mu_2 |=\Delta =0$ vs. $H_1: \Delta > 0$
 
 a). Want to plot power as a function of sample size. Use normal approach to calculation the relation between power and sample size.
+
+From the slides we know that
+$$
+n = \frac{2(Z_{\alpha/2}+Z_{\beta})^2 \sigma^2}{\Delta^2}
+$$
+then
+$$
+Z_\beta = \frac{\sqrt{n} \Delta}{\sqrt{2}\sigma}-Z_{\alpha/2}
+$$
 
 ```{r, warning=FALSE,echo=TRUE}
 power_n = function(sample_size, alpha, delta, sigma){
@@ -26,7 +35,7 @@ power_n = function(sample_size, alpha, delta, sigma){
 }
 
 # alpha = 0.05, sigma = 10, delta = 4
-sample_size = seq(5, 100, by = 5)
+sample_size = seq(5, 500, by = 5)
 
 power = power_n(sample_size, 0.05, 4, 10)
 
@@ -34,7 +43,12 @@ plot(sample_size, power, type="b", xlab="sample size", ylab="power",
   main = "Sample Size v.s. Power")
 ```
 
-b). For effect size $\Delta = \mu_1-\mu_2$, also use normal approach, and we can get the plot as follows:
+b). For effect size $\Delta = \mu_1-\mu_2$, also use normal approach, we can get
+$$
+\Delta = \sqrt{\frac{2(Z_{\alpha/2}+Z_\beta)^2 \sigma^2}{n}}
+$$
+
+and we can get the plot as follows:
 ```{r, warning=FALSE}
 power_e = function(sample_size, alpha, beta, sigma){
   ## calculate delta
@@ -48,7 +62,7 @@ power_e = function(sample_size, alpha, beta, sigma){
 }
 
 # power = 0.8, beta = 1 - power = 0.2, alpha = 0.05, sigma = 10
-sample_size = seq(5, 100, by = 5)
+sample_size = seq(5, 500, by = 5)
 
 delta = power_e(sample_size, 0.05, 0.2, 10)
 
@@ -95,7 +109,7 @@ power_normal1 = function(sample_size, alpha, p1, p2){
 }
 
 # alpha = 0.05, p1 = 0.8, p2 = 0.9
-sample_size = seq(5, 100, by = 5)
+sample_size = seq(5, 500, by = 5)
 
 power = power_normal1(sample_size, 0.05, 0.8, 0.9)
 
@@ -109,7 +123,7 @@ From the slides we know that
 $$
 n = \frac{(Z_{\alpha/2}+Z_\beta)^2}{\Delta^2}
 $$
-then 
+$\Delta = f(p1)-f(p2)$, then
 $$
 Z_\beta = \sqrt{n} \Delta - Z_{\alpha/2}
 $$
@@ -130,7 +144,7 @@ power_arcsin1 = function(sample_size, alpha, p1, p2){
 }
 
 # alpha = 0.05, p1 = 0.8, p2 = 0.9
-sample_size = seq(5, 100, by = 5)
+sample_size = seq(5, 500, by = 5)
 
 power = power_arcsin1(sample_size, 0.05, 0.8, 0.9)
 plot(sample_size, power, type = "b", xlab = "sample size", ylab = "power", 
@@ -141,6 +155,15 @@ plot(sample_size, power, type = "b", xlab = "sample size", ylab = "power",
 b). Want to plot sample size as a function of effective size.
 
 1. Use normal approximation.
+
+Fix $p_1$ and let the $\Delta$ change. (Because $\Delta = p_2 - p_1$, we can let $p_2$ change.)
+
+Use
+$$
+n = \frac{[Z_{\alpha/2} \sqrt{2 \bar{p} \bar{q}} + Z_\beta \sqrt{p_1 q_1 + p_2 q_2}]^2}{(p_2 - p_1)^2}
+$$
+to calculate the sample size.
+
 ```{r, warning=FALSE}
 # fix p1 and let delta change, calculate sample size
 power_normal2 = function(p1, p2, alpha, beta){
@@ -174,6 +197,10 @@ plot(delta, sample_size, type="b", main = "Delta v.s. Sample Size use Normal App
 ```
 
 2. Use `arcsin transformation` 
+We can get
+$$
+\Delta = \frac{(Z_{\alpha/2}+Z_\beta)^2}{\sqrt{n}}
+$$
 ```{r, message=FALSE}
 f = function(x) 2 * asin(sqrt(x))
 
@@ -189,7 +216,7 @@ delta_arcsin = function(sample_size, alpha, beta){
 }
 
 # alpha = 0.05, beta = 1- power = 0.2
-sample_size = seq(5, 100, by = 5)
+sample_size = seq(5, 500, by = 5)
 
 delta = delta_arcsin(sample_size, 0.05, 0.2)
 plot(delta,sample_size, type = "b", main = "Delta v.s. Sample Size use arcsin Transformation")
