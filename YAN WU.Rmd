@@ -1,0 +1,122 @@
+---
+title: "ADA HW5"
+author: 'Yan Wu ( Uni: yw2592)'
+date: "Friday, October 10, 2014"
+output: pdf_document
+---
+
+**Problem 1**
+
+```{r}
+require(MASS)
+data <- Pima.te
+pairs(~glu+npreg+bp+skin+bmi+age,data=data)
+fit1 <- lm(glu~npreg+bp+skin+bmi+age,data=data)
+plot(fit1)
+summary(fit1)
+```
+From the result of the fitted model, we have the average estimates of efficiences. The linear regression model is glu = 56.831-0.875npreg+0.104bp+0.263skin+0.796bmi+0.764age.
+
+**Problem2**
+
+- **Nonlinearity Check**
+
+```{r}
+summary(fit1)$r.squared
+```
+Since the R-squared is only 0.1338033, really small, which means there are a lot of variance is not explained by the model. It suggests the fitted model suffers from the lack of fit.
+
+Also, from the plot of residuals against fitted value, we could see the relation between fitted value and residual is curvilinear. Thus, the lineariry assumption is not true.
+
+- **Normality Check**
+```{r}
+qqnorm(fit1$residuals)
+qqline(fit1$residuals,col = 2,lwd=2,lty=2)
+```
+
+The normal probability plot with a concave-upward shape shows the distribution of error term is left-skewed. The assumption of normality is invalid.
+
+```{r}
+st <- shapiro.test(fit1$residuals)
+st
+st$p.value
+```
+Since the p-value from Shapiro-Wilk test is significantly small, we could conclude that the sample deviates from normality.
+
+- **Homoscedasticity Check**
+
+The plot of the residuals against the fitted values is also helpful to examine the homoscedasicity of the error term.
+```{r}
+plot(fit1$fitted.values,fit1$residuals,xlab='Fitted Value',ylab='Residual',main="Resdual Plot against Fitted Value")
+abline(h=0,col = 2,lwd=2,lty=2)
+```
+
+Again, the residuals fall around 0, showing no tendencies and certian pattern, which means the variance of the error terms is constant.
+
+- **Uncorrelated Error Check**
+```{r}
+require(lmtest)
+dw <- dwtest(fit1)
+dw
+dw$p.value
+```
+Since the p-value from Durbin-watson test is greater than 0.05, there is no evidence to reject the null hypothesis that there is a correlation within the error term. The assumption of uncorrelated error is valid.
+
+- **Outliers**
+```{r}
+###Examine outlying Y observations 
+n = nrow(data)
+elist = fit1$resi
+p = 6 
+SSE = sum(elist^2)
+X = cbind(1,data$npreg,data$bp,data$skin,data$bmi,data$age)
+hlist = diag(X%*%solve(t(X)%*%X)%*%t(X))
+tlist = elist*((n-p-1)/(SSE*(1-hlist)-elist^2))^(1/2)
+max(abs(tlist))
+which(abs(tlist)==max(abs(tlist)))
+qt(0.9975,n-p-1)
+```
+
+Using Bonferrono simultaneous test procedure with a family significance level 0.01, we have t(0.9975,325)=2.826329. Since the absolute value of largest absolute studentized deleted residual is 2.706896, smaller than t(0.9975,325)=2.826329, we conclude that the case 177 is not an outlier.
+
+```{r}
+###Identifying outlying X observations with Hat Matrix Leverage Values
+2*p/n
+which(hlist > 2*p/n)
+```
+
+From the result, we could identify the outliers of X.
+
+- **Influential Points**
+```{r}
+lmi <- lm.influence(fit1)
+lms <- summary(fit1)
+e <- resid(fit1)
+s <- lms$sigma
+si <- lmi$sigma
+xxi <- diag(lms$cov.unscaled)
+h <- lmi$hat
+bi <- coef(fit1)-t(coef(lmi))
+dfbetas <- bi/t(si%o%xxi^0.5)
+stand.resid <- e/(si*(1-h)^0.5)
+DFFITS <- h^0.5*e/(si*(1-h))
+which(abs(stand.resid)>2*sqrt(p/n))
+```
+
+We could use DFFITS to check the influential points. The index of cases show above. 
+
+**Problem 3. The remedial measures in case of violations of any of the underlying assumptions**
+
+- **Lack of fit: **1) Simple trasformations, e.g, take log; 2)Non-linear model; 3)Other predictors.
+
+- **Non-constancy: ** 1) Transformation; 2) Build variance structure in to model: WLS.
+
+- **Non-Normality: **1) Transformation; 2)Robust regression methods.
+
+- **Correlated Errors:**1) Transformation: Cochrane-Crutt Procedure. 2) Use models that incorporate the correlattion structure: Generalized Estimating Equations
+
+- **Multicollinearity: **Ridge regression
+
+- **Influential Cases: **Robust regression
+
+From problem 2, we know the nonlinearity, non-normality, and influential cases exist. We could use proposal of remedial measures above to fix problems.
