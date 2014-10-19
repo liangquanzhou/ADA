@@ -1,0 +1,50 @@
+Advanced Data Analysis    HW2 
+------------------------------------------
+Name: Yan Wu   Uni: yw2592
+------------------------------------------
+
+**Problem 1. Compare models selected using LASSO and a stepwise procedure**
+```{r}
+require(MASS)
+data <- birthwt
+data <- data[,-1]
+attach(data)
+race=as.factor(race)
+smoke=as.factor(smoke)
+ui=as.factor(ui)
+ht=as.factor(ht)
+dat <- data.frame(age,lwt,race,smoke,ptl,ht,ui,ftv)
+x  <- data.matrix(dat)
+dim(x)
+y <- data$bwt
+d <- seq(1,189)
+train <- sample(d,151,replace=F)
+test <- d[-train]
+grid =10^seq (10,-2, length=100)
+# Lasso
+set.seed(1)
+require(glmnet)
+lasso.mod <- glmnet(x[train,],y[train],alpha=1,lambda=grid)
+lasso.cv <- cv.glmnet(x[train,],y[train],alpha=1,lambda=grid)
+plot(lasso.cv)
+bestlam <- lasso.cv$lambda.min
+lam.1se <- lasso.cv$lambda.1se
+lasso.pred <- predict(lasso.mod,s=bestlam,newx=x[test,])
+mean((lasso.pred-y[test])^2)
+out <- glmnet(x,y,alpha=1,lambda=grid)
+lasso.coef <- predict(out,type="coefficients",s=bestlam)
+lasso.coef
+```
+
+The model using LASSO is bwt = 4429.79+2.95age-168.12race-321.37smoke-37.15ptl-520.22ht-479.06ui.
+
+```{r}
+set.seed(2592)
+# stepwise
+fit.stepwise <- lm(bwt~age+lwt+race+smoke+ptl+ht+ui+ftv,data=dat)
+fit.stepwise <- stepAIC(fit.stepwise,direction=c("both"))
+fit.stepwise$anova
+fit.stepwise$coef
+```
+The model using Stepwise procedure is bwt = 2837.264+4.242lwt-475.058race2-348.150race3-356.321smoke-585.193.22ht-525.524ui.
+

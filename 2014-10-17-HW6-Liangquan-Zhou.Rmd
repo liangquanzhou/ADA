@@ -88,8 +88,17 @@ dat1 = stackloss
 fit1 = lm(stack.loss ~ ., data = stackloss)
 library(car)
 vif(fit1)
+mean(vif(fit1))
 ```
-Since the $VIF > 10$ suggests the multicollinearity, so the model is free from multicollinearity.
+The $VIF > 10$ suggests the multicollinearity. However, the average $VIF$ is $2.4 > 1$, so there is multicollinearity, even though each $VIF$ is smaller than 10.
+
+The remedial measure could be: 
+
+1. Ridge Regression
+
+2. Correlation transformation of X and Y so that use centered data to fit linear regression.
+
+3. Principal component regression
 
 
 ###ii). Suppose the value of `stack.loss[20]` was changed from 14 to 1500, and those of `Water.Temp[13]` from 18 to 170, and `Acid.Conc.[13]` from 82 to 10.  
