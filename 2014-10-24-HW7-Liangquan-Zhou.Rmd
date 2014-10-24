@@ -1,0 +1,147 @@
+---
+title: "ADA HW7"
+author: "Liangquan Zhou lz2377"
+date: "Thursday, October 23, 2014"
+output: pdf_document
+---
+
+#1. Consider the Duodenal Ulcer data given in Problem 25, Chapter 5.
+
+First input the data.
+
+```{r, message=FALSE, warning=FALSE}
+controls = c(.11, .11, .11, .19, .21, .22, .24, .25, .31)
+gallstone = c(.18, .27, .36, .37, .39, .47, .37, .57)
+ulcer = c(.29, .30, .40, .45, .47, .52, .57, 1.10)
+Y = as.numeric(c(controls, gallstone, ulcer))
+name = c(rep("controls", length(controls)), rep("gallstone", length(gallstone)), 
+  rep("ulcer", length(ulcer)))
+dat = data.frame(cbind(Y, name))
+dat$Y = as.numeric(dat$Y)
+```
+
+##a). Using an appropriate ANOVA model, determine whether there is a significant difference among the group means. Use both an F test and simultaneous confidence interval procedures.
+
+Use F test:
+
+```{r, message=FALSE, warning=FALSE}
+anov1 = aov(Y ~ name, data = dat)
+summary(anov1)
+```
+
+From the result we can see that $p < 0.05$, then we should reject $H_0: \mu_{Controls} = \mu_{Gallstone} = \mu_{Ulcer}$.
+
+Use simultaneous confidence interval procedures:
+
+Here we use `Bonferroni` method:
+```{r, message=FALSE, warning=FALSE}
+pairwise.t.test(dat$Y, dat$name, p.adjust.method = "bonf", alternative = c("two.sided"))
+```
+Then we can see that the group `Controls` has a different mean with other two groups.
+
+##b). Assess the assumptions of the ANOVA model.
+
+###1). Non-normality.
+
+First plot the residual's bar plot and qq plot for explanatory analysis:
+
+```{r, message=FALSE, warning=FALSE}
+hist(resid(anov1), 10)
+qqnorm(resid(anov1))
+```
+
+It's hard to tell from the bar plot and qq plot for the residuals. For more information we can use Shapiro-Wilk normality test:
+
+```{r, message=FALSE, warning=FALSE}
+shapiro.test(resid(anov1))
+```
+
+$p$ value is greater than 0.05, so the assumption of normality is valid
+
+###2). Unequal Variances.
+
+Use Bartlett's test. Sine Bartlett's test is highly depend on normality assumption, and from the above we see that the normality assumption is valid, we can use Bartlett's test.
+
+```{r, message=FALSE, warning=FALSE}
+bartlett.test(x = dat$Y, g = dat$name)
+```
+
+$p$ value is greater than 0.05, so the homogeneity of variances is valid
+
+##c). Compare the results to those obtained using a non-parametric procedure.
+
+Use Kruskal-Wallis test:
+
+```{r, message=FALSE, warning=FALSE}
+kruskal.test(x = dat$Y, g = dat$name)
+```
+
+Since $p$ value is smaller 0.05, we reject $H_0$ and think there is a significant difference among the group means.
+
+#2. Consider the IQ scores data of Display 13.24, problem 19, Chapter 13.
+
+Frist input the data.
+
+```{r, message=FALSE, warning=FALSE}
+library(Sleuth2)
+dat = ex1319
+```
+
+###a). (Do problem 19) Does the difference in mean socres for those with high and low SES biological parents depend on whether the adoptive parents were high or low SES? If not, how much is the mean IQ score affected by the SES of adoptive parents, and how much is it affected by the SES of the biological parents? Is one of these effects larger than the other?
+
+Use two-way anova and see the $p$ value for the interaction term:
+
+```{r, message=FALSE, warning=FALSE}
+anov2 = aov(IQ ~ Adoptive * Biologic, data = dat)
+summary(anov2)
+```
+
+The $p$ value of the interaction term is greater than 0.05, which implies that the interaction term is not significant, so `Adoptive` and `Biologic` are not depend on each other.
+
+Split the data into `biologic.high` and `biologic.low` two subsets, and apply anova on these two datasets to see whether the `Adoptive` is significant on IQ score.
+```{r, message=FALSE, warning=FALSE}
+biologic.high = subset(dat, Biologic == "High")
+summary(aov(IQ ~ Adoptive, data = biologic.high))
+biologic.low = subset(dat, Biologic == "Low")
+summary(aov(IQ ~ Adoptive, data = biologic.low))
+```
+
+From the above we can see that two test both has a $p$ value greater than 0.05, so we think in both `biologic.high` and `biologic.low` subsets, the SES of adotive parents is not significant on `IQ`. Thus we think that the difference in mean scores for those with high and low SES biological parents does NOT depend on whether the adoptive paremts were high or low SES. 
+
+To analyze how much is the mean IQ score affected by each of them, we use ancova:
+
+```{r, message=FALSE, warning=FALSE}
+ancova = aov(IQ ~ Adoptive + Biologic, data = dat)
+summary(ancova)
+```
+$p$ values we can see that both `Adoptive` and `Biologic` are significant. Since the $p$ value for `Biologic` is smaller than $p$ value for `Adoptive`, we think `Biologic` affected on mean scores more than `Adoptive`. 
+
+
+##b. Assess the validity of all assumptions.
+
+###1). Non-normality.
+
+First plot the residual's bar plot and qq plot for explanatory analysis:
+```{r, message=FALSE, warning=FALSE}
+hist(resid(anov2), 10)
+qqnorm(resid(anov2))
+```
+
+It's hard to tell from the bar plot and qq plot for the residuals. For more information we can use Shapiro-Wilk normality test:
+
+```{r, message=FALSE, warning=FALSE}
+shapiro.test(resid(anov2))
+```
+
+$p$ value is greater than 0.05, so the assumption of normality is valid
+
+###2). Non-Parallel Regression lines.
+
+Use two-anova:
+
+```{r, message=FALSE, warning=FALSE}
+summary(anov2)
+```
+
+We can see that interaction term is not significant. So the parallelism is valid.
+
