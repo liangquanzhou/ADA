@@ -16,8 +16,10 @@ ulcer = c(.29, .30, .40, .45, .47, .52, .57, 1.10)
 Y = as.numeric(c(controls, gallstone, ulcer))
 name = c(rep("controls", length(controls)), rep("gallstone", length(gallstone)), 
   rep("ulcer", length(ulcer)))
-dat = data.frame(cbind(Y, name))
+dat = data.frame(cbind2(Y, name),stringsAsFactors=F)
+names(dat) = c("Y", "name")
 dat$Y = as.numeric(dat$Y)
+dat$name = as.factor(dat$name)
 ```
 
 ##a). Using an appropriate ANOVA model, determine whether there is a significant difference among the group means. Use both an F test and simultaneous confidence interval procedures.
@@ -37,7 +39,7 @@ Here we use `Bonferroni` method:
 ```{r, message=FALSE, warning=FALSE}
 pairwise.t.test(dat$Y, dat$name, p.adjust.method = "bonf", alternative = c("two.sided"))
 ```
-Then we can see that the group `Controls` has a different mean with other two groups.
+Then we can see that the group `Controls` has a different mean with the group `Ulcer`.
 
 ##b). Assess the assumptions of the ANOVA model.
 
@@ -56,14 +58,15 @@ It's hard to tell from the bar plot and qq plot for the residuals. For more info
 shapiro.test(resid(anov1))
 ```
 
-$p$ value is greater than 0.05, so the assumption of normality is valid
+$p$ value is smaller than 0.05, so the assumption of normality is invalid
 
 ###2). Unequal Variances.
 
 Use Bartlett's test. Sine Bartlett's test is highly depend on normality assumption, and from the above we see that the normality assumption is valid, we can use Bartlett's test.
 
 ```{r, message=FALSE, warning=FALSE}
-bartlett.test(x = dat$Y, g = dat$name)
+library(car)
+leveneTest(y = dat$Y, g = dat$name)
 ```
 
 $p$ value is greater than 0.05, so the homogeneity of variances is valid
