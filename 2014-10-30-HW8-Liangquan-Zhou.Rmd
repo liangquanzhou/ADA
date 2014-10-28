@@ -1,0 +1,191 @@
+---
+title: "ADA HW8"
+author: "Liangquan Zhou lz2377"
+date: "October 30, 2014"
+output: pdf_document
+---
+Consider the data in Table 1 on mental health.
+
+
+##1. Categorize Mental Health as a binary variable, with values 0, if Normal, and 1, Otherwise; and Education Level with values 0 if No College Degree, and 1 otherwise.
+
+```{r, message=FALSE, warning=FALSE,echo=FALSE}
+### generate the dataset
+dat1 = data.frame(c(4,3,2,5,3,1), c(10, 8, 7, 21, 13, 9), c(35, 24, 21, 55, 34, 22))
+gender = c("Male", "Female")
+edu.level = c("No_College_Degree", "Undergrad_Degree", "Post-grad_Degree")
+mental = c("Severely_Depressed", "Depressed", "Normal")
+names(dat1) = mental
+g.e = paste(c(rep(gender[1],3), rep(gender[2], 3)), rep(edu.level, 2), sep = ".")
+row.names(dat1) = g.e
+
+#generate data set 
+gen = function(dat1, gender1, edu.level1, mental1){
+  rowname = paste(gender1, edu.level1, sep = ".")
+  i = which(row.names(dat1) == rowname)
+  j = which(names(dat1) == mental1)
+  t = dat1[i, j]
+  result = c()
+  r = c(gender1, edu.level1, mental1)
+  for (i in 1:t){
+    result = rbind(result, r)
+  }
+  return(result)
+}
+
+dat = c()
+for (i in 1:2){
+  gender1 = gender[i]
+  for (j in 1:3){
+    edu.level1 = edu.level[j]
+    for (k in 1:3){
+      mental1 = mental[k]
+      dat = rbind(dat, gen(dat1, gender1, edu.level1, mental1))
+    }
+  }
+}
+dat = data.frame(dat)
+names(dat) = c("Gender","Education_Level","Mental_Health")
+```
+###a). Determine whether there is association between Education Level and Mental Health, using logistic regression, without adjusting for Gender. Interpret what the estimated parameters denote.
+
+```{r, message=FALSE, warning=FALSE}
+## categorize mental health and education level
+dat1 = dat
+dat1$Mental_Health = 1*(dat1$Mental_Health != "Normal")
+dat1$Education_Level = 1*(dat1$Education_Level != "No_College_Degree")
+dat1$Gender = 1*(dat1$Gender == "Male")
+fit1 = glm(Mental_Health ~ Education_Level, data = dat1, family = "binomial")
+summary(fit1)
+```
+
+The estimated parameter $\beta_0 = -0.81093$, represents the log odds ratio of having a `Depression` or `Severly Depression` for someone who has a `Undergrad Degree` or `Post-grad Degree`.
+
+The estimated parameter $\beta_1 = 0.02445$, represents the log odds ration of having a `Depression` or `Severly Depression` for someone who has `No College Degree`, relative to someone who has a `Undergrad Degree` or `Post-grad Degree`.
+
+###b). Repeat (a) adjusting for Gender. Interpret what the estimated parameters denote.
+
+```{r, message=FALSE, warning=FALSE}
+## categorize mental health
+fit2 = glm(Mental_Health ~ Education_Level + Gender, data = dat1, family = "binomial")
+summary(fit2)
+```
+
+The estimated parameter $\beta_0 = -0.77389$, represents the log odds ratio of having a `Depression` or `Severly Depression` for someone who has `No College Degree` and with gender `Female`.
+
+The estimated parameter $\beta_1 = 0.03093$, represents the log odds ratio of having a `Depression` or `Severly Depression` for someone who has `No College Degree`, relative to someone who has a `Undergrad Degree` or `Post-grad Degree`, for both `Male` and `Female`.
+
+The estimated parameter $\beta_2 = -0.09946$, represents the log odds ratio of having a `Depression` or `Severly Depression` for someone whose gender is `Male`, relative to someone whose gender is `Female`, for all `Education Level`.
+
+###c). Assess whether it is appropriate to pool data across male and female subjects using a suitable logistic regression model.
+
+Use `Hosmer-Lemshow` goodness-of-fit test:
+```{r, message=FALSE, warning=FALSE}
+library(ResourceSelection)
+hoslem.test(x = fit2$y, y = fitted(fit2), g = 3)
+```
+
+Since $p$ value is greater than 0.05, we accept $H_0$ and think it is appropriate to pool data across male and female subjects using a suitable logistic regression model.
+
+##2. Repeat 1 (a) - 1 (c) above now using Educational Background as a trichotomous variable, i.e., No College Degree, Undergrad Degree, Post-grad Degree.
+
+###a). 
+
+Take `No Clooege Degree` as the reference group. Define design variables:
+$$
+D_1 = \left\{
+  \begin{array}{ll}
+    1 & \hbox{Undergrad Degree} \\
+    0 & \hbox{Otherwise}
+  \end{array}
+\right.
+$$
+$$
+D_2 = \left\{
+  \begin{array}{ll}
+    1 & \hbox{Post-grad Degree} \\
+    0 & \hbox{Otherwise}
+  \end{array}
+\right.
+$$
+
+
+```{r, message=FALSE, warning=FALSE}
+## categorize mental health and education level
+dat2 = dat
+dat2$Mental_Health = 1*(dat2$Mental_Health != "Normal")
+dat2$Gender = 1*(dat2$Gender == "Male")
+dat2$D1 = 1*(dat2$Education_Level == "Undergrad_Degree")
+dat2$D2 = 1*(dat2$Education_Level == "Post-grad_Degree")
+
+fit1 = glm(Mental_Health ~ D1 + D2, data = dat2, family = "binomial")
+summary(fit1)
+```
+
+The estimated parameter $\beta_0 =  -0.810930$, represents the log odds ratio of having a `Depression` or `Severly Depression` for someone who has `No College Degree`.
+
+The estimated parameter $\beta_1 = 0.046324$, represents the log odds ratio of having a `Depression` or `Severly Depression` for someone who has `Undergrad Degree`, relative to someone who has `No College Degree`.
+
+The estimated parameter $\beta_2 = -0.005831$, represents the log odds ratio of having a `Depression` or `Severly Depression` for someone who has `Post-grad Degree`, relative to someone who has `No College Degree`.
+
+###b). 
+
+```{r, message=FALSE, warning=FALSE}
+## categorize mental health
+fit2 = glm(Mental_Health ~ D1 + D2 + Gender, data = dat2, family = "binomial")
+summary(fit2)
+```
+
+The estimated parameter $\beta_0 = -0.774535$, represents the log odds ratio of having a `Depression` or `Severly Depression` for someone who has `No College Degree` and with gender `Female`.
+
+The estimated parameter $\beta_1 = 0.049738$, represents the log odds ratio of having a `Depression` or `Severly Depression` for someone who has `Undergrad Degree`, relative to someone who has `No College Degree`, for both `Male` and `Female`.
+
+The estimated parameter $\beta_2 = 0.004591$, represents the log odds ratio of having a `Depression` or `Severly Depression` for someone who has `Post-grad Degree`, relative to someone who has `No College Degree`, for both `Male` and `Female`.
+
+The estimated parameter $\beta_3 = -0.097709$, represents the log odds ratio of having a `Depression` or `Severly Depression` for someone whose gender is `Male`, relative to someone whose gender is `Female`, for all `Education Level`.
+
+###c). 
+
+Use `Hosmer-Lemshow` goodness-of-fit test:
+```{r, message=FALSE, warning=FALSE}
+hoslem.test(x = fit2$y, y = fitted(fit2), g = 4)
+```
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+## Another way is to use e le Cessie - van Houwelingen - Copas -Hosmer unweighted sum of squares test for global goodness of fit ??????
+### use package `rms` and function residuals. This can avoid choosing g in hoslem.test
+#library(rms)
+#model.lrm2 = lrm(Mental_Health ~ Gender + D1 + D2, data = dat2, x=T, y=T)
+#model.lrm2
+#residuals(model.lrm2, 'gof')
+#model.lrm1 = lrm(Mental_Health ~ Gender + Education_Level, data = dat1, x=T, y=T)
+#model.lrm1
+#residuals(model.lrm1, 'gof')
+```
+
+Since $p$ value is greater than 0.05, we accept $H_0$ and think it is appropriate to pool data across male and female subjects using a suitable logistic regression model.
+
+
+##3. Repeat 1 (b) using the lasso.
+
+###b). 
+```{r, message=FALSE, warning=FALSE}
+## categorize mental health
+library(glmnet)
+X = data.matrix(subset(dat1, select = c(Education_Level, Gender)))
+y = dat1[,3]
+fit <- glmnet(X,y, family = "binomial") 
+cv.fit <- cv.glmnet(X,y, family = "binomial",nlambda = 85) 
+plot(cv.fit)
+
+## best lambda
+cv.fit$lambda.min
+
+## best model
+model.final <- cv.fit$glmnet.fit
+# the best model's coefficients
+model.coef <- coef(cv.fit$glmnet.fit, s = cv.fit$lambda.min)
+model.coef
+```
+
+The lasso regression model is a constant: $logit(p_{Depressed or Severely Drepressed|Education Level, Gender}) = -0.7979261$
