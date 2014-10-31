@@ -59,11 +59,20 @@ fit1 = glm(Mental_Health ~ Education_Level, data = dat1, family = "binomial")
 summary(fit1)
 ```
 
-The estimated parameter $\hat{\beta_0} = -0.81093$, represents the log odds of having a `Depression` or `Severly Depression` for someone who has `No College Degree`.
+The estimated parameter $\hat{\beta_0} = -0.81093$, represents the log odds ($log(\frac{p_{depressed}}{1-p_{depressed}})$) of having a `Depression` or `Severly Depression` for someone who has `No College Degree`.
 
 The estimated parameter $\hat{\beta_1} = 0.02445$, represents the log odds ratio of having a `Depression` or `Severly Depression` for someone who has a `Undergrad Degree` or `Post-grad Degree`, relative to someone who has `No College Degree`.
 
-Since $\hat{\beta_1}$ is very close to zero and the $p$ value for $\hat{\beta_2}$ greater than 0.05(not significant), there is no asscociation between `Education Level` and `Mental Health`.
+Since $\hat{\beta_1}$ is very close to zero and the $p$ value for $\hat{\beta_2}$ greater than 0.05(not significantly small), we conclude that there is no asscociation between `Education Level` and `Mental Health`.
+
+If we see the odds ratio corresponding to `Education Level` and it 95 percent confidence intervel；
+
+```{r, message=FALSE, warning=FALSE}
+exp(coef(fit1))
+exp(confint.default(fit1))
+```
+
+The odds ratio is colse to 0 and 1 belongs to the 95 percent confidence intervel.
 
 ###b). Repeat (a) adjusting for Gender. Interpret what the estimated parameters denote.
 
@@ -79,7 +88,16 @@ The estimated parameter $\hat{\beta_1} = 0.03093$, represents the log odds ratio
 
 The estimated parameter $\hat{\beta_2} = -0.09946$, represents the log odds ratio of having a `Depression` or `Severly Depression` for someone whose gender is `Male`, relative to someone whose gender is `Female`, for all `Education Level`.
 
-Since $\hat{\beta_1}$ is very close to zero and $\hat{\beta_2}$ is somewhat no clse to zero, we think there is association between `Gender` and `Mental Health`, but no association between `Education Level` and `Mental Health`.
+Since $\hat{\beta_1}$ is very close to zero and $\hat{\beta_2}$ is somewhat not clse to zero, we think there is association between `Gender` and `Mental Health`, but not sure about the association between `Education Level` and `Mental Health`.
+
+See odds ratios and confidence intervals:
+
+```{r, message=FALSE, warning=FALSE}
+exp(coef(fit2))
+exp(confint.default(fit2))
+```
+
+We can see that the odds ratios for `Education Level` and `Gender` are all close to 1, and both of their 95 percent confidence interval contains 1. Then we conclude that there are no association between `Education Level` and `Mentel Health`, as well as `Gender` and `Mental Healtl`.
 
 ###c). Assess whether it is appropriate to pool data across male and female subjects using a suitable logistic regression model.
 
@@ -134,6 +152,15 @@ The estimated parameter $\hat{\beta_2} = -0.005831$, represents the log odds rat
 
 From the value of $\hat{\beta_1}$ and $\hat{\beta_2}$ we can find that $D_1$ is has a stronger association with `Mental Health` than $D_2$, so we think that $D_1$ has a association with `Mental Health` but $D_2$ does not.
 
+See odds ratios and confidence intervals:
+
+```{r, message=FALSE, warning=FALSE}
+exp(coef(fit1))
+exp(confint.default(fit1))
+```
+
+Then we conclude that both $D_1$ and $D_2$ are not associated with `Mental Health`.
+
 ###b). 
 
 ```{r, message=FALSE, warning=FALSE}
@@ -150,7 +177,14 @@ The estimated parameter $\hat{\beta_2} = 0.004591$, represents the log odds rati
 
 The estimated parameter $\hat{\beta_3} = -0.097709$, represents the log odds ratio of having a `Depression` or `Severly Depression` for someone whose gender is `Male`, relative to someone whose gender is `Female`, for all `Education Level`.
 
-Same as the previous questions, from estimated values we think that $D_1$ and `Gender` has association with `Mental Health`, but $D_2$ does not.
+Same as previous questions, see odds ratios and confidence intervals:
+
+```{r, message=FALSE, warning=FALSE}
+exp(coef(fit2))
+exp(confint.default(fit2))
+```
+
+Then we conclude that $D_1$, $D_2$, `Gender` are not associated with `Mental Health`.
 
 ###c). 
 
