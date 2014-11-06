@@ -1,0 +1,151 @@
+---
+title: "ADA HW5"
+author: "Liangquan Zhou(lz2377)"
+date: "10/09/2014"
+output: pdf_document
+---
+
+Consider the `Pima.te` dataset, in R library `MASS`, on Diabetes in Pima Indian Women.
+
+#a). Fit a multiple linear regression model of predict `glu`, plasma glucose concentration in an oral glucose tolerance test, using the following set of predictors:
+
+\ \ `npreg`   number of pregnancies
+
+\ \ `bp`      diastolic blood pressure (mm Hg)
+  
+\ \ `skin`    triceps skin fold thickness (mm)
+  
+\ \ `bmi`     body mass index (weight in kg/(height in m)^2)
+  
+\ \ `age`     age in years
+ 
+ 
+```{r, warning=FALSE,message=FALSE}
+library(MASS)
+library(lmtest)
+fit = lm(glu ~ npreg + bp + skin + bmi + age, data = Pima.te)
+par(mfrow=c(2,2))
+plot(fit)
+summary(fit)
+```
+ 
+ 
+#b). State and assess the validity of the underlying assumptions:
+
+## Linearity/functional form, including the need for any interaction terms
+
+Compute $R^2$ to see check the functional form.
+```{r, warning=FALSE}
+summary(fit)$r.squared
+```
+Since $R^2$ is small, it suggest lack of fit. So we should consider high order and interaction terms.
+
+##Normality
+
+Apply Shapiro-Wilk test on the residuals.
+```{r, warning=FALSE}
+shapiro.test(fit$residuals)
+```
+Since $p-value < 0.05$, we reject $H_0$, and think the residuals is not normally distributed
+
+##Homoscedasticity
+
+Apply Breusch-Pagan Test to test homoscedasticity.
+```{r, warning=FALSE}
+bptest(fit)
+```
+From the test we can see that $p-value$ is less than 0.05, then we reject $H_0$, and think the homoscedasticity is not valid.
+
+##Uncorrelated error
+
+Apply Durbin-Watson test for $1st$ order AR.
+```{r, warning=FALSE}
+dwtest(fit)
+```
+The $p-value$ is greater than 0.05, so we accept $H_0$, and think the uncorrelated error is valid.
+
+  
+##Check for outliers and influential points.
+
+Use Studentized deleted residuals to identiry Y-outliers, and cooks distance for influential points.
+
+```{r,warning=FALSE}
+n = 332
+p = 6
+lmi = lm.influence(fit)
+lms = summary(fit)
+e <- resid(fit)
+s <-lms$sigma
+si <-lmi$sigma
+xxi <-diag(lms$cov.unscaled)
+h <-lmi$hat
+bi <- coef(fit)-t(coef(lmi))
+dfbetas <- bi/t(si%o%xxi^0.5)
+stand.resid <- e/(s*(1-h)^0.5)
+student.resid <- e/(si*(1-h)^0.5)
+DFFITS <- h^0.5*e/(si*(1-h))
+```
+
+Then we use `studentized deleted residuals` to check Y-outliers. Using a Bonferroni test
+procedure to test whether the largest absolute studentized deleted residual is an
+outlier.
+```{r,warning=FALSE}
+## check outliers
+# p = 6 
+# n = 332
+abs(max(student.resid)) > qt(0.05/(2*n), n-p-2)
+library(car)
+outlierTest(fit)
+```
+So the Y-outlier exists. And the  177th point is a Y-outlier.
+
+Using diagonal of the hat matrix to check X-outliers
+```{r,warning=FALSE}
+## check outliers
+h[h > 2* p / n]
+```
+
+For influential points points, first use `cook's distance` to test influence on all fitted values.
+```{r,warning=FALSE}
+## use cook's distance(a aggregrate measure of influence)
+which(cooks.distance(fit)>qf(0.05, p+1, n-p-1))
+```
+It shows there is no influential points.
+
+But if we use `DFFITS`, since $n = 332$, we can think this is kind of a large dataset. `DFFITS` test influuence on Single Fitted Values, and we can find there are some influential points:
+```{r}
+DFFITS[which(abs(DFFITS) > 2*sqrt((p+1)/n))]
+```
+
+And use `DFBETAS` to test Inuence on the Regression Coefficients. Since large values of $DFBETAS_{k(i)}$ indicate the influence of the ith case on the kth regression coefficient estimate, and we have $p=6$ coefficients, so for every coefficient we should check whether the the point is influential.
+
+```{r}
+which(dfbetas(fit)[,1] > 2 / sqrt(n)) # influtial points on 1st coefficient (Intercept)
+which(dfbetas(fit)[,2] > 2 / sqrt(n)) # influtial points on 2nd coefficient (npreg)
+which(dfbetas(fit)[,3] > 2 / sqrt(n)) # influtial points on 3rd coefficient (bp)
+which(dfbetas(fit)[,4] > 2 / sqrt(n)) # influtial points on 4th coefficient (skin)
+which(dfbetas(fit)[,5] > 2 / sqrt(n)) # influtial points on 5th coefficient (bmi)
+which(dfbetas(fit)[,6] > 2 / sqrt(n)) # influtial points on 6th coefficient (age)
+```
+ 
+#c). Propose remedial measures in case of violations of any of the underlying assumptions
+
+## Lack of fit
+Apply Simple transformations, e.g., log
+
+Use Non-linear model
+
+Use Other predictors
+
+##Non-normality
+Transformation
+
+Use Robust regression methods
+
+##Non-constancy of the Error Variance
+Use Transformation
+
+Use Build variance structure into model: Weighted Least Square
+
+##Outliers and Influential Points
+Use Robust regression methods, e.g., LAD regression, LMS regression.

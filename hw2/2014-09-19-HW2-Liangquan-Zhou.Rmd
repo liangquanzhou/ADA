@@ -1,0 +1,147 @@
+---
+title: "ADA HW2"
+author: "Liangquan Zhou lz2377"
+published: no
+output: pdf_document
+tags: hw2
+---
+
+Consider the data on Chicken Weights by Feed Type (`chickwts`) in R library `MASS`
+
+## 1. Determine whether there is a significant difference in the mean weights of chicks fed meatmeal vs. those fed casein using each of the following procedures:
+
+a). A parametric procedure
+
+b). A non-parametric procedure
+
+c). A re-sampling procedure
+
+Discuss the assumption underlying each of the analyses, their validity, and any remedial measures to be taken.
+
+### Solution
+a). The hypothesis test:
+$$
+H_0: \mu_m- \mu_c=0 \ \ \ 
+H_1: \mu_m-\mu_c \neq 0
+$$
+Assumptioms:
+
+1. The weights of chicks fed on meatmeal and casein are independent.
+
+2. The meatmeal and casein data are normally distributed.
+
+3. The standard deviation of them are the same.
+
+Check assumptions:
+Use `Shapiro-Wilk Normality Test` to test the normality of two samples.
+
+```{r ,message=FALSE,warning=FALSE}
+library(MASS)
+data(chickwts)
+meatmeal=chickwts[chickwts[,2]=="meatmeal",1]
+casein=chickwts[chickwts[,2]=="casein",1]
+```
+
+```{r,messaege=FALSE}
+shapiro.test(meatmeal)
+shapiro.test(casein)
+```
+
+And use `F-test` for standard deviations:
+```{r}
+var.test(meatmeal,casein)
+```
+
+Since these $p$-values are all greater than 0.05, we can think the assumption is reasionable.
+
+And based on three assumptions above, we can use `two sample t-test`
+```{r}
+t.test(meatmeal,casein,var.equal=T)
+```
+From the result we can see that the $p$-value is greater than 0.05, so we do not reject $H_0$.
+
+
+b). For a non-parametirc procedure, we use `Wilcoxon Rank-Sum Test`.
+```{r}
+wilcox.test(meatmeal,casein)
+```
+The $p$-value is also greater than 0.05, so we do not reject $H_0$.
+
+c). Use bootstrap methods. Resampling `Meatmeal` and `Carsein` seperately, and for each iteration we compare the statistic with the statistic from the observed dataset.
+
+```{r}
+set.seed(1)
+casein.bar= casein + mean(meatmeal) - mean(casein)
+z.obs=(mean(meatmeal)-mean(casein))/sqrt(var(meatmeal)/length(meatmeal)+var(casein)/length(casein))
+z.temp=c()
+for(i in 1:1000){
+  meatmeal.temp=sample(meatmeal,length(meatmeal),replace=T)
+  casein.temp=sample(casein.bar,length(casein),replace=T)
+  z.temp[i]=(mean(meatmeal.temp)-mean(casein.temp))/sqrt(var(meatmeal.temp)/length(meatmeal)+var(casein.temp)/length(casein))
+}
+p.value=sum(abs(z.temp)>=abs(z.obs))/1000
+p.value
+```
+And the result is accord with the conclusion in (a) and (b). The $p$-value here is also greater than 0.05, then we should not reject $H_0$.
+
+
+## 2. Using the data for chicks fed soybean and those on sunflower, compute the following, based on a suitable bootstrap method:
+
+a). A 95% confidence interval for the difference in median weight for the two groups
+
+b). A 95% bootstrap confidence interval for the ratio of the variances of soybean fed to sunflower fed chicks
+
+c). A 95% confidence interval for the ratio of the variances of soybean fed to sunflower fed chicks
+
+Discuss the assumption underlying each of the analyses, their validity, and any remedial measures to be taken
+
+###Solution
+a). The approach is to create a large number of samples from this pseudo-population using bootstrap. Then we use quantile function to find the 95% difference interval.
+```{r,warning=FALSE}
+soybean=chickwts[chickwts[,2]=="soybean",1]
+sunflower=chickwts[chickwts[,2]=="sunflower",1]
+library(bootstrap)
+median.soy=bootstrap(soybean,1000,median)
+median.sun=bootstrap(sunflower,1000,median)
+quantile(median.soy$thetastar-median.sun$thetastar,c(0.025,0.975))
+```
+
+b). Same method as (a).
+```{r}
+var.soy= bootstrap(soybean,1000,var)
+var.sun = bootstrap(sunflower,1000,var)
+quantile(var.soy$thetastar/var.sun$thetastar,c(0.025,0.975))
+```
+
+c). First test the normality and then use `var.test` to get the 95% confidence interval. 
+```{r}
+shapiro.test(soybean)
+shapiro.test(sunflower)
+var.test(soybean,sunflower)$conf.int
+```
+This means that the 95% confidence interval for the ratio of the variances of soybean fed to sunflower fed chicks is $[0.3622039, 3.9281145]$.
+
+## 3. Assume that if the weight of a chick is below 258, that chick is classified under “LOW WEIGHT”. For chicks fed meatmeal vs. those fed soybean,
+
+a)Determine whether there is a significant difference in the proportions of the chicks classified under “LOW WEIGHT”.
+
+b)Construct a 95% confidence interval for the difference in the proportions of the chicks classified under “LOW WEIGHT”.
+
+Discuss the assumption underlying each of the analyses, their validity, and any remedial measures to be taken.
+
+###Solution
+a) & b). The assumption is that the expected counts in `LOW WEIGHT` in both `meatmeal` and `soybean` are not too small (generally greater than 5). 
+
+```{r}
+n=length(meatmeal)+length(soybean) # total number
+low.m=sum(meatmeal<258) 
+low.s=sum(soybean<258)
+p=(low.m+low.s)/n
+min(p*length(meatmeal),(1-p)*length(meatmeal),p*length(soybean),(1-p)*length(soybean))
+```
+We can see that the expected counts of low weight or not low weight in`meatmeal` and `soybean` are all greater than 5. Then we can use `prop.test` to determine whether there is a significat difference in the proportions of the chicks classified under `LOW WEIGHT` and get its 95% confidence interval.
+```{r}
+prop.test(c(low.m,low.s),c(length(meatmeal),length(soybean)))
+prop.test(c(low.m,low.s),c(length(meatmeal),length(soybean)))$conf.int
+```
+And from the result we can see that the $p$-value is greater than 0.05, thus we should not rejuct $H_0$. The 95% confidence interval is $[-0.7396 , 0.1812]$.
