@@ -1,0 +1,81 @@
+---
+title: "ADA HW9"
+author: "Liangquan Zhou lz2377"
+date: "November 06, 2014"
+output: pdf_document
+---
+
+##Cancer Deaths of Atomic Bomb Survivors. 
+The data is the number of cancer deaths among survivors of the atomic bombs dropped on Japan during World War II, categorized by time (years) after the bomb that death occurd and the amount of radiation exposure that the survivors received from the blast. Also listed in each cell is the `person-years at risk`, in 100s. This is the sum total of all years spent by all persons in the category. 
+
+Suppose that the mean number of cancer death in each cell is Poisson with mean $\mu=risk \times rate $, where `risk` is the `person-years at risk` and `rate` is the rate of cancer deaths per person per year. 
+
+It is desired to describe this `rate` in terms of the amount of radiation, adjusting for the effects of time after exposure.
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+library(Sleuth2)
+dat = ex22.20
+dat$Rate = dat$Deaths/dat$Risk
+```
+
+###(a). Using log(`risk`) as an offset, fit the Poisson log-linear regression model with time after blast treated as a factor (with seven levels) and with `rads` and `rads`-squared treated as covariates. Look at the deviance statistic and the deviance residuals. Does extra-Poisson variation seem to be present? Is the `rads`-squared term necessary?
+
+Fit the poisson regression model with the data. 
+```{r, message=FALSE, warning=FALSE}
+fit.a = glm(Deaths ~ Years + Exposure + I(Exposure^2) + offset(log(Risk)), data = dat, 
+  family = poisson)
+anova(fit.a, test = "Chi")
+summary(fit.a)
+```
+
+```{r, message=FALSE, warning=FALSE,echo=FALSE}
+#also can use these to detect the overdispersion
+#library(qcc)
+#qcc.overdispersion.test(dat$Deaths, type = "poisson")
+```
+The deviance residuals is `r fit.a$deviance` and the mean of `Deaths` is `r mean(dat$Deaths)`. Since the sample mean substantially smaller than deviance residuals, there is a extra-Poisson variation (Overdispersion). 
+
+The coefficient of `rads`-squared is small, and it corresponded p-value is greater than 0.05, thus we think `rads`-squared term is not necessary.
+
+
+###(b). Try the same model in part (a); but insted of treating time after bomb as a factorwith seven levels, ocmpute the midpoint of each interval and include log(`time`) as a numerical explanatory variable. Is the deviance statistic substantially larger in this model, or does it appear that time can adequately be represented through this single term?
+
+Since the `rads`-squared term is not necessary in the model, we drop this term. Fit the model in (a) again but treat the time as a numeric variable, then compare the anova table with the anova table in (a):
+```{r, message=FALSE, warning=FALSE}
+fit.a = glm(Deaths ~ Years + Exposure + offset(log(Risk)), data = dat, family = poisson)
+levels(dat$Years) = as.character(c(3.5, 9.5, 13.5, 17.5, 21.5, 25.5, 29.5))
+dat$Years = as.numeric(as.character(dat$Years))
+fit.b = glm(Deaths ~ Years + Exposure + offset(log(Risk)), data = dat, family = poisson)
+#compare the deviance residuals
+anova(fit.a)
+anova(fit.b)
+```
+
+The deviance residuals in (a) is `r fit.a$deviance`, and the deviance residuals in (b) is `r fit.b$deviance`, which is not substantially larger the deviance rediduals in (a). So we conclude that time can adequately be represented through this single term.
+ 
+
+###(c). Try fitting a model that includes the interaction of log(`time`) and exposure. Is the interaction significant?
+
+```{r, message=FALSE, warning=FALSE}
+fit.c = glm(Deaths ~ Years + Exposure + I(log(Years)*Exposure) + offset(log(Risk)), 
+  data = dat, family = poisson)
+summary(fit.c)
+```
+
+The inteaction term has a coefficient `r fit.c$coef[4]` with p-value greater than 0.05, thus it is not significant.
+
+###(d). Based on a good-fitting model, make a statement about the effect of radiation exposure on the number of cancer deaths per person per year (and include a confidence interval if you supply an estimate of a parameter).
+
+Based on the previous questions, we choose the model in (b) as the best good-fitting model. We can get the coefficients and their 95 percent confidence intervals:
+
+```{r, message=FALSE, warning=FALSE}
+fit.b$coef
+confint(fit.b)
+```
+
+So we the model is 
+$$
+log(Death) = -3.603192703 + 0.082959982 * Years + 0.001832762 * Exposure
+$$
+Since we set the `Exposure` as a numeric variable, then it can be interpreted as: When the radiation exposure increase 1, the number of death per person per year would likely to increase $e^{0.001832762}=$ `r exp(fit.b$coef[3])`.
+
