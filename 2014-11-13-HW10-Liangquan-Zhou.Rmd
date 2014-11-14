@@ -1,0 +1,49 @@
+---
+title: "ADA HW10"
+author: "Liangquan Zhou lz2377"
+date: "November 13, 2014"
+output: pdf_document
+---
+
+Consider the Mayo Clinic Lung Cancer Data in R package survival: data(lung) or data(cancer): including the variables
+
+$\ \ \ $  inst: Institution code
+ 
+$\ \ \ $   time: Survival time in 
+ 
+$\ \ \ $   status: censoring status 1=censored, 2=dead
+ 
+ $\ \ \ $  age: Age in years
+ 
+ $\ \ \ $  sex: Male=1 Female=2, etc.
+ 
+```{r, warning=FALSE, message=FALSE}
+library(survival)
+dat = lung
+```
+ 
+## 1. Estimate and plot the survival curves for time BY sex using the following methods:
+
+### Kaplan-Meier
+```{r, warning=FALSE, message=FALSE}
+fit1 <- survfit(Surv(time, status) ~ sex, data=dat)
+plot(fit1, lty=2:3, main = "Kaplan-Meier Estimates for Lung Cancer Data")
+legend("bottomleft", c("male", "female"), lty = c(2,3))
+```
+
+### Fleming-Harrington
+```{r, warning=FALSE, message=FALSE}
+fit2 <- survfit(Surv(time, status) ~ sex, type = "fh2", data=dat)
+plot(fit2, lty=2:3,  main = "Fleming-Harrington Estimates for Lung Cancer Data")
+legend("bottomleft", c("male", "female"), lty = c(2,3))
+```
+
+## 2. For each case in 1, estimate the median survival time, using the estimated survival curves.
+
+```{r, warning=FALSE,message=FALSE}
+print(fit1)
+print(fit2)
+```
+We can see that the the median survival time for male and female using `Kplan-Meier` Estimates are 270 and 426;
+
+The median survival time for male and female using `Fleming-Harrington` Estimates are also 270 and 426;
