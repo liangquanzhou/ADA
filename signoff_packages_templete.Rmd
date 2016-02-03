@@ -1,0 +1,91 @@
+---
+title: "signoff packages template"
+author: "Larry"
+date: "February 3, 2016"
+output: html_document
+---
+
+<a name="Workflow"/>
+
+---
+
+## **Workflow**
+
+---
+
+<div style="width: 960px; height: 720px; margin: 10px; position: relative;"><iframe allowfullscreen frameborder="0" style="width:960px; height:720px" src="https://www.lucidchart.com/documents/view/c20c0dfb-c92e-4307-bc2c-f682a0f42bd0" id="6hsR5wNSwfji"></iframe></div>
+
+#### Workflow related documents:
+1. [Application for completion by constituent](#Applicant Form)
+2. [Confirmation page displayed after application submission]
+4. [Admin receives automated email from system](#Responder)
+5. Admin reviews application
+6. Applicant Receives automated approval email from system
+7. Applicant receives automated denial email from system
+8. Admin issues permit and mails to Applicant
+
+<a name="Applicant Form"/>
+
+---
+
+## **Applicant Form**
+
+---
+
+<div style="width: 1200px; height: 3000px; margin: 10px; position: relative;;"><iframe allowfullscreen frameborder="0" style="width:1200px; height:3000px" src="http://main.propertypilot.com/web/public/8b8b0d72-a69.html?demo=1" id="_msREtXeNXI6"></iframe></div>
+
+---
+
+[Back to Workflow](#Workflow)
+
+<a name="Responder"/>
+
+---
+
+## **Email response to constituent**
+
+---
+
+<!DOCTYPE  html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>3 rensponder</title><style type="text/css"> * {margin:0; padding:0; text-indent:0; }
+ h1 { color: black; font-family:Calibri, sans-serif; font-style: normal; font-weight: bold; text-decoration: none; font-size: 12pt; }
+ p { color: black; font-family:Calibri, sans-serif; font-style: normal; font-weight: normal; text-decoration: none; font-size: 12pt; margin:0pt; }
+</style></head><body><h1 style="padding-top: 2pt;padding-left: 5pt;text-indent: 0pt;text-align: justify;">Your Town</h1><h1 style="padding-left: 5pt;text-indent: 0pt;text-align: justify;">Annual Business Registration</h1><p style="text-indent: 0pt;text-align: left;"><br/></p><p style="padding-left: 5pt;text-indent: 0pt;text-align: justify;">Reference # <b>ABR-2016-005</b></p><p style="padding-left: 5pt;text-indent: 0pt;line-height: 200%;text-align: left;">Application Date: 1/8/2016 10:52:00 AM Dear shr saz,</p><p style="padding-left: 5pt;text-indent: 0pt;line-height: 200%;text-align: justify;">Thank you for submitting your application for Annual Business Registration with Your Town. Please note that if approved the fee of $100.00 must be paid before a license can be issued. Notice of approval will be emailed within 5 business days.</p><p style="padding-left: 5pt;text-indent: 0pt;line-height: 200%;text-align: left;">In order to receive a permit you must come to the Municipal Clerk&#39;s office to make payment. The office is located at:</p><p style="padding-left: 41pt;text-indent: 0pt;line-height: 14pt;text-align: left;">123 Main Ave,</p><p style="padding-left: 5pt;text-indent: 36pt;line-height: 204%;text-align: left;">Your Town, USA 00000 Sincerely,</p><p style="padding-left: 5pt;text-indent: 0pt;line-height: 14pt;text-align: justify;">Borough Administrator/Clerk</p></body></html>
+
+---
+
+[Back to Workflow](#Workflow)
+
+<a name="Notifier"/>
+
+---
+
+## **Email response to constituent**
+
+---
+
+
+<!DOCTYPE  html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>3 notifier.pdf</title><style type="text/css"> * {margin:0; padding:0; text-indent:0; }
+ h1 { color: black; font-family:Calibri, sans-serif; font-style: normal; font-weight: bold; text-decoration: none; font-size: 12pt; }
+ p { color: black; font-family:Calibri, sans-serif; font-style: normal; font-weight: normal; text-decoration: none; font-size: 12pt; margin:0pt; }
+ .a, a { color: black; font-family:Calibri, sans-serif; font-style: normal; font-weight: normal; text-decoration: none; font-size: 12pt; }
+</style></head><body><h1 style="padding-top: 2pt;padding-left: 5pt;text-indent: 0pt;text-align: left;">Annual Business Registration</h1><p style="text-indent: 0pt;text-align: left;"><br/></p><p style="padding-left: 5pt;text-indent: 0pt;text-align: left;">Reference # <b>ABR-2016-005</b></p><p style="padding-left: 5pt;text-indent: 0pt;line-height: 200%;text-align: left;">Application Date: 1/8/2016 10:52:00 AM Application Information</p><p style="padding-left: 5pt;text-indent: 0pt;text-align: left;">Name: shr saz Address: 7 Arden PL Block: 2205 Lot: 2</p><p style="padding-left: 5pt;text-indent: 0pt;text-align: left;"><a href="mailto:shravan@govpilot.com" class="a" target="_blank">Telephone # 2121412421 Email: </a><a href="mailto:shravan@govpilot.com" target="_blank">shravan@govpilot.com</a></p></body></html>
+
+---
+
+[Back to Workflow](#Workflow)
+
+
+
+
+
+
+
+
+
+
+
+![alt text][logo]
+
+[logo]: https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 2"
